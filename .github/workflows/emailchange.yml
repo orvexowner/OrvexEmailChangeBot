@@ -1,0 +1,35 @@
+name: Apply Email Change
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'CPM Email'
+        required: true
+      password:
+        description: 'CPM Password'
+        required: true
+      new_email:
+        description: 'New Email'
+        required: true
+      chat_id:
+        description: 'Telegram Chat ID'
+        required: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Apply Email Change
+        run: python apply_email.py "${{ github.event.inputs.email }}" "${{ github.event.inputs.password }}" "${{ github.event.inputs.new_email }}"
+      - name: Notify Telegram
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendMessage" \
+          -d chat_id="${{ github.event.inputs.chat_id }}" \
+          -d text="✅ Email changed successfully! Enjoy! - @OrvexOwner"
